@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversion Journey - COOL AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: #fafafa;
+      color: #16171a;
+    }
+
+    /* Layout */
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0 24px;
+      border-bottom: 1px solid #e5e5e5;
+      margin-bottom: 24px;
+    }
+    .page-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #16171a;
+    }
+    .page-subtitle {
+      font-size: 13px;
+      color: #8c8e92;
+      margin-top: 4px;
+    }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: 1px solid #dbdbdd;
+      border-radius: 8px;
+      background: white;
+      font-size: 13px;
+      font-weight: 500;
+      color: #16171a;
+      cursor: pointer;
+    }
+    .filter-btn:hover { background: #f9fafb; }
+    .filter-btn.active {
+      border-color: #6D49D4;
+      color: #6D49D4;
+      background: rgba(109, 73, 212, 0.05);
+    }
+    .filter-btn svg { width: 14px; height: 14px; }
+
+    /* KPI row */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #dbdbdd;
+      overflow: hidden;
+      margin-bottom: 24px;
+      box-shadow: 0px 2px 8px rgba(0,0,0,0.06);
+    }
+    .kpi-card {
+      padding: 20px 24px;
+      border-right: 1px solid #f1f1f2;
+    }
+    .kpi-card:last-child { border-right: none; }
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #8c8e92;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 8px;
+    }
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #16171a;
+    }
+    .kpi-change {
+      font-size: 12px;
+      font-weight: 500;
+      margin-top: 4px;
+    }
+    .kpi-change.up { color: #22c55e; }
+    .kpi-change.down { color: #ef4444; }
+
+    /* Sankey / Journey Visualization */
+    .journey-section {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #dbdbdd;
+      box-shadow: 0px 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-bottom: 1px solid #f1f1f2;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #16171a;
+    }
+    .section-subtitle {
+      font-size: 12px;
+      color: #8c8e92;
+      margin-top: 2px;
+    }
+
+    /* Journey flow visualization */
+    .journey-flow {
+      padding: 32px 24px;
+      overflow-x: auto;
+    }
+    .flow-container {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      min-width: 900px;
+    }
+    .flow-stage {
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+    .stage-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #8c8e92;
+      margin-bottom: 16px;
+    }
+    .stage-items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+    }
+    .stage-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      width: 180px;
+      position: relative;
+    }
+    .stage-item .channel-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .stage-item .count {
+      margin-left: auto;
+      font-size: 12px;
+      font-weight: 600;
+      color: #8c8e92;
+    }
+
+    /* Channel colors */
+    .ch-google { background: rgba(109, 73, 212, 0.08); color: #6D49D4; }
+    .ch-google .channel-dot { background: #6D49D4; }
+    .ch-meta { background: rgba(68, 189, 182, 0.08); color: #2a9d96; }
+    .ch-meta .channel-dot { background: #44BDB6; }
+    .ch-adform { background: rgba(255, 85, 34, 0.08); color: #cc4419; }
+    .ch-adform .channel-dot { background: #FF5522; }
+    .ch-direct { background: rgba(140, 142, 146, 0.08); color: #5a5c60; }
+    .ch-direct .channel-dot { background: #8c8e92; }
+    .ch-conversion { background: rgba(34, 197, 94, 0.08); color: #16a34a; }
+    .ch-conversion .channel-dot { background: #22c55e; }
+
+    /* Flow arrows */
+    .flow-arrows {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      flex-shrink: 0;
+      padding-top: 28px;
+    }
+    .flow-arrows svg {
+      width: 24px;
+      height: 24px;
+      color: #d0d0d0;
+    }
+
+    /* Journey table */
+    .journey-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .journey-table thead th {
+      background: #f1f1f2;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #8c8e92;
+      text-align: left;
+      border-bottom: 1px solid #dbdbdd;
+    }
+    .journey-table tbody td {
+      padding: 14px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid #f1f1f2;
+      vertical-align: middle;
+    }
+    .journey-table tbody tr:hover { background: #f9fafb; }
+
+    /* Path pills */
+    .path-flow {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .path-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .path-pill .pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .path-arrow {
+      color: #d0d0d0;
+      font-size: 11px;
+      margin: 0 2px;
+    }
+
+    /* Channel legend */
+    .channel-legend {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #8c8e92;
+    }
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* Top paths card */
+    .top-paths {
+      padding: 24px;
+    }
+    .path-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f1f2;
+    }
+    .path-row:last-child { border-bottom: none; }
+    .path-rank {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #f1f1f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #8c8e92;
+      flex-shrink: 0;
+      margin-right: 12px;
+    }
+    .path-info { flex: 1; }
+    .path-stats {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+    .path-stat {
+      text-align: right;
+    }
+    .path-stat-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #16171a;
+    }
+    .path-stat-label {
+      font-size: 11px;
+      color: #8c8e92;
+    }
+
+    /* Progress bar */
+    .progress-bar-bg {
+      width: 120px;
+      height: 6px;
+      background: #f1f1f2;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    /* Two column layout */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    /* Donut chart area */
+    .donut-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      padding: 24px;
+    }
+    .donut-svg { width: 160px; height: 160px; }
+    .donut-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .donut-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .donut-legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+    .donut-legend-label {
+      font-size: 13px;
+      color: #16171a;
+    }
+    .donut-legend-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: #16171a;
+      margin-left: auto;
+    }
+    .donut-legend-pct {
+      font-size: 12px;
+      color: #8c8e92;
+      width: 40px;
+      text-align: right;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #f1f1f2;
+    }
+    .tab {
+      padding: 12px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #8c8e92;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .tab.active {
+      color: #6D49D4;
+      border-bottom-color: #6D49D4;
+    }
+    .tab:hover { color: #16171a; }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">Conversion Journey</div>
+        <div class="page-subtitle">Track how users interact with your campaigns before converting</div>
+      </div>
+      <div class="channel-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#FF5522"></div>Programmatic</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#6D49D4"></div>Google</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#44BDB6"></div>Meta</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#8c8e92"></div>Direct</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <div class="filter-btn active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        May 1 - May 21, 2026
+      </div>
+      <div class="filter-btn">
+        All Conversions
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="filter-btn">
+        All Campaigns
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="filter-btn">
+        30-day window
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Conversions</div>
+        <div class="kpi-value">1,247</div>
+        <div class="kpi-change up">+12.3% vs prev period</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Touchpoints</div>
+        <div class="kpi-value">3.2</div>
+        <div class="kpi-change up">+0.4 vs prev period</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Time to Convert</div>
+        <div class="kpi-value">4.6d</div>
+        <div class="kpi-change down">-0.8d vs prev period</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Multi-Touch Rate</div>
+        <div class="kpi-value">68%</div>
+        <div class="kpi-change up">+5.2% vs prev period</div>
+      </div>
+    </div>
+
+    <!-- Two column: Channel Attribution + Top Paths -->
+    <div class="two-col">
+
+      <!-- Channel Attribution Donut -->
+      <div class="journey-section">
+        <div class="section-header">
+          <div>
+            <div class="section-title">First Touch Attribution</div>
+            <div class="section-subtitle">Which channel started the conversion journey</div>
+          </div>
+        </div>
+        <div class="donut-container">
+          <svg class="donut-svg" viewBox="0 0 160 160">
+            <!-- Google: 38% -->
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#6D49D4" stroke-width="24"
+              stroke-dasharray="143.3 238.8" stroke-dashoffset="0" transform="rotate(-90 80 80)"/>
+            <!-- Meta: 28% -->
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#44BDB6" stroke-width="24"
+              stroke-dasharray="105.6 276.5" stroke-dashoffset="-143.3" transform="rotate(-90 80 80)"/>
+            <!-- Programmatic: 22% -->
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#FF5522" stroke-width="24"
+              stroke-dasharray="83 299" stroke-dashoffset="-248.9" transform="rotate(-90 80 80)"/>
+            <!-- Direct: 12% -->
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#d0d0d0" stroke-width="24"
+              stroke-dasharray="45.2 336.9" stroke-dashoffset="-331.9" transform="rotate(-90 80 80)"/>
+            <text x="80" y="76" text-anchor="middle" font-size="22" font-weight="700" fill="#16171a" font-family="DM Sans">1,247</text>
+            <text x="80" y="94" text-anchor="middle" font-size="11" fill="#8c8e92" font-family="DM Sans">conversions</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="donut-legend-item">
+              <div class="donut-legend-color" style="background:#6D49D4"></div>
+              <span class="donut-legend-label">Google Ads</span>
+              <span class="donut-legend-value">474</span>
+              <span class="donut-legend-pct">38%</span>
+            </div>
+            <div class="donut-legend-item">
+              <div class="donut-legend-color" style="background:#44BDB6"></div>
+              <span class="donut-legend-label">Meta</span>
+              <span class="donut-legend-value">349</span>
+              <span class="donut-legend-pct">28%</span>
+            </div>
+            <div class="donut-legend-item">
+              <div class="donut-legend-color" style="background:#FF5522"></div>
+              <span class="donut-legend-label">Programmatic</span>
+              <span class="donut-legend-value">274</span>
+              <span class="donut-legend-pct">22%</span>
+            </div>
+            <div class="donut-legend-item">
+              <div class="donut-legend-color" style="background:#d0d0d0"></div>
+              <span class="donut-legend-label">Direct</span>
+              <span class="donut-legend-value">150</span>
+              <span class="donut-legend-pct">12%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Conversion Paths -->
+      <div class="journey-section">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Top Conversion Paths</div>
+            <div class="section-subtitle">Most common journeys leading to conversion</div>
+          </div>
+        </div>
+        <div class="top-paths">
+          <!-- Path 1 -->
+          <div class="path-row">
+            <div class="path-rank">1</div>
+            <div class="path-info">
+              <div class="path-flow">
+                <span class="path-pill ch-google"><span class="pill-dot" style="background:#6D49D4"></span>Google</span>
+                <span class="path-arrow">&rarr;</span>
+                <span class="path-pill ch-meta"><span class="pill-dot" style="background:#44BDB6"></span>Meta</span>
+                <span class="path-arrow">&rarr;</span>
+                <span class="path-pill ch-direct"><span class="pill-dot" style="background:#8c8e92"></span>Direct</span>
+              </div>
+            </div>
+            <div class="path-stats">
+              <div class="path-stat">
+                <div class="path-stat-value">312</div>
+                <div class="path-stat-label">conversions</div>
+              </div>
+              <div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width:100%;background:#6D49D4"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Path 2 -->
+          <div class="path-row">
+            <div class="path-rank">2</div>
+            <div class="path-info">
+              <div class="path-flow">
+                <span class="path-pill ch-adform"><span class="pill-dot" style="background:#FF5522"></span>Programmatic</span>
+                <span class="path-arrow">&rarr;</span>
+                <span class="path-pill ch-google"><span class="pill-dot" style="background:#6D49D4"></span>Google</span>
+              </div>
+            </div>
+            <div class="path-stats">
+              <div class="path-stat">
+                <div class="path-stat-value">198</div>
+                <div class="path-stat-label">conversions</div>
+              </div>
+              <div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width:63%;background:#FF5522"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Path 3 -->
+          <div class="path-row">
+            <div class="path-rank">3</div>
+            <div class="path-info">
+              <div class="path-flow">
+                <span class="path-pill ch-meta"><span class="pill-dot" style="background:#44BDB6"></span>Meta</span>
+                <span class="path-arrow">&rarr;</span>
+                <span class="path-pill ch-adform"><span class="pill-dot" style="background:#FF5522"></span>Programmatic</span>
+                <span class="path-arrow">&rarr;</span>
+                <span class="path-pill ch-google"><span class="pill-dot" style="background:#6D49D4"></span>Google</span>
+                <span class="path-arrow">&rarr;</span>
+                <span class="path-pill ch-direct"><span class="pill-dot" style="background:#8c8e92"></span>Direct</span>
+              </div>
+            </div>
+            <div class="path-stats">
+              <div class="path-stat">
+                <div class="path-stat-value">156</div>
+                <div class="path-stat-label">conversions</div>
+              </div>
+              <div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width:50%;background:#44BDB6"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Path 4 -->
+          <div class="path-row">
+            <div class="path-rank">4</div>
+            <div class="path-info">
+              <div class="path-flow">
+                <span class="path-pill ch-google"><span class="pill-dot" style="background:#6D49D4"></span>Google</span>
+                <span class="path-arrow">&rarr;</span>
+                <span class="path-pill ch-direct"><span class="pill-dot" style="background:#8c8e92"></span>Direct</span>
+              </div>
+            </div>
+            <div class="path-stats">
+              <div class="path-stat">
+                <div class="path-stat-value">143</div>
+                <div class="path-stat-label">conversions</div>
+              </div>
+              <div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width:46%;background:#6D49D4"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Path 5 -->
+          <div class="path-row">
+            <div class="path-rank">5</div>
+            <div class="path-info">
+              <div class="path-flow">
+                <span class="path-pill ch-direct"><span class="pill-dot" style="background:#8c8e92"></span>Direct</span>
+              </div>
+            </div>
+            <div class="path-stats">
+              <div class="path-stat">
+                <div class="path-stat-value">89</div>
+                <div class="path-stat-label">conversions</div>
+              </div>
+              <div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width:29%;background:#8c8e92"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Individual Conversion Journeys Table -->
+    <div class="journey-section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Conversion Details</div>
+          <div class="section-subtitle">Individual conversion journeys with full touchpoint history</div>
+        </div>
+        <div class="filter-btn" style="font-size:12px;padding:6px 12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </div>
+      </div>
+      <div class="tabs">
+        <div class="tab active">All Conversions</div>
+        <div class="tab">Leads</div>
+        <div class="tab">Checkouts</div>
+        <div class="tab">Page Visits</div>
+      </div>
+      <table class="journey-table">
+        <thead>
+          <tr>
+            <th style="width:140px">Conversion Date</th>
+            <th style="width:100px">Type</th>
+            <th>Journey Path</th>
+            <th style="width:100px">Touchpoints</th>
+            <th style="width:120px">Time to Convert</th>
+            <th style="width:100px">Revenue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>May 20, 2026</td>
+            <td><span style="color:#22c55e;font-weight:500">Checkout</span></td>
+            <td>
+              <div class="path-flow">
+                <span class="path-pill ch-google"><span class="pill-dot" style="background:#6D49D4"></span>Google Search</span>
+                <span class="path-arrow">&rarr;</span>
+                <span class="path-pill ch-meta"><span class="pill-dot" style="background:#44BDB6"></span>Meta Retarget</span>
+                <span class="path-arrow">&rarr;</span>
+                <span class="path-pill ch-direct"><span class="pill-dot" style="background:#8c8e92"></span>Direct</span>
+              </div>
+            </td>
+            <td style="text-align:center">3</td>
+            <td>6 days</td>
+            <td style="font-weight:600">$2,450</td>
+          </tr>
+          <tr>
+            <td>May 20, 2026</td>
+            <td><span style="color:#6D49D4;font-weight:500">Lead</span></td>
+            <td>
+              <div class="path-flow">
+                <span class="path-pill ch-adform"><span class="pill-dot" style="background:#FF5522"></span>Programmatic CTV</span>
+                <span class="path-arrow">&rarr;</span>
+                <span class="path-pill ch-google"><span class="pill-dot" style="background:#6D49D4"></span>Google Brand</span>
+              </div>
+            </td>
+            <td style="text-align:center">2</td>
+            <td>3 days</td>
+            <td style="color:#8c8e92">-</td>
+          </tr>
+          <tr>
+            <td>May 19, 2026</td>
+            <td><span style="color:#22c55e;font-weight:500">Checkout</span></td>
+            <td>
+              <div class="path-flow">
+                <span class="path-pill ch-meta"><span class="pill-dot" style="background:#44BDB6"></span>Meta Lookalike</span>
+                <span class="path-arrow">&rarr;</span>
+                <span class="path-pill ch-adform"><span class="pill-dot" style="background:#FF5522"></span>Programmatic Display</span>
+                <span class="path-arrow">&rarr;</span>
+                <span class="path-pill ch-google"><span class="pill-dot" style="background:#6D49D4"></span>Google Search</span>
+                <span class="path-arrow">&rarr;</span>
+                <span class="path-pill ch-direct"><span class="pill-dot" style="background:#8c8e92"></span>Direct</span>
+              </div>
+            </td>
+            <td style="text-align:center">4</td>
+            <td>12 days</td>
+            <td style="font-weight:600">$890</td>
+          </tr>
+          <tr>
+            <td>May 19, 2026</td>
+            <td><span style="color:#6D49D4;font-weight:500">Lead</span></td>
+            <td>
+              <div class="path-flow">
+                <span class="path-pill ch-google"><span class="pill-dot" style="background:#6D49D4"></span>Google PMax</span>
+                <span class="path-arrow">&rarr;</span>
+                <span class="path-pill ch-direct"><span class="pill-dot" style="background:#8c8e92"></span>Direct</span>
+              </div>
+            </td>
+            <td style="text-align:center">2</td>
+            <td>1 day</td>
+            <td style="color:#8c8e92">-</td>
+          </tr>
+          <tr>
+            <td>May 18, 2026</td>
+            <td><span style="color:#22c55e;font-weight:500">Checkout</span></td>
+            <td>
+              <div class="path-flow">
+                <span class="path-pill ch-direct"><span class="pill-dot" style="background:#8c8e92"></span>Direct</span>
+              </div>
+            </td>
+            <td style="text-align:center">1</td>
+            <td>-</td>
+            <td style="font-weight:600">$1,200</td>
+          </tr>
+          <tr>
+            <td>May 18, 2026</td>
+            <td><span style="color:#6D49D4;font-weight:500">Lead</span></td>
+            <td>
+              <div class="path-flow">
+                <span class="path-pill ch-adform"><span class="pill-dot" style="background:#FF5522"></span>Programmatic CTV</span>
+                <span class="path-arrow">&rarr;</span>
+                <span class="path-pill ch-meta"><span class="pill-dot" style="background:#44BDB6"></span>Meta Retarget</span>
+                <span class="path-arrow">&rarr;</span>
+                <span class="path-pill ch-google"><span class="pill-dot" style="background:#6D49D4"></span>Google Brand</span>
+              </div>
+            </td>
+            <td style="text-align:center">3</td>
+            <td>8 days</td>
+            <td style="color:#8c8e92">-</td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- Pagination -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-top:1px solid #dbdbdd;">
+        <span style="font-size:13px;color:#8c8e92;">Showing 1-6 of 1,247 conversions</span>
+        <div style="display:flex;gap:4px;">
+          <div class="filter-btn" style="padding:6px 10px;font-size:12px;color:#8c8e92">Previous</div>
+          <div class="filter-btn" style="padding:6px 10px;font-size:12px;background:#6D49D4;color:white;border-color:#6D49D4">1</div>
+          <div class="filter-btn" style="padding:6px 10px;font-size:12px">2</div>
+          <div class="filter-btn" style="padding:6px 10px;font-size:12px">3</div>
+          <div class="filter-btn" style="padding:6px 10px;font-size:12px">...</div>
+          <div class="filter-btn" style="padding:6px 10px;font-size:12px">208</div>
+          <div class="filter-btn" style="padding:6px 10px;font-size:12px">Next</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
