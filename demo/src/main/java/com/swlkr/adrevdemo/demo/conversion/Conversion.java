@@ -2,6 +2,7 @@ package com.swlkr.adrevdemo.demo.conversion;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -11,7 +12,8 @@ import jakarta.persistence.Table;
 public class Conversion {
     @Id
     private String id;
-    private String advertiser_id;
+    @Column(name = "advertiser_id")
+    private String advertiserId;
     private Timestamp conversion_date;
     private ConversionType type;
     private String subcategory;
@@ -31,12 +33,12 @@ public class Conversion {
         this.id = id;
     }
 
-    public String getAdvertiser_id() {
-        return advertiser_id;
+    public String getAdvertiserId() {
+        return advertiserId;
     }
 
-    public void setAdvertiser_id(String advertiser_id) {
-        this.advertiser_id = advertiser_id;
+    public void setAdvertiserId(String advertiserId) {
+        this.advertiserId = advertiserId;
     }
 
     public Timestamp getConversion_date() {

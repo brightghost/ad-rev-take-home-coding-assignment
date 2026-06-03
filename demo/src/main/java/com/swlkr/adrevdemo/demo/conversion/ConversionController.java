@@ -29,7 +29,7 @@ import com.swlkr.adrevdemo.demo.touchpoint.Touchpoint;
 import com.swlkr.adrevdemo.demo.touchpoint.TouchpointRepository;
 
 @RestController
-@RequestMapping("/api/conversions")
+@RequestMapping("/conversions")
 public class ConversionController {
     
     private final ConversionRepository conversionRepository;
@@ -40,10 +40,10 @@ public class ConversionController {
         this.touchpointRepository = touchpointRepository;
     }
 
-    @GetMapping(value = "/summary", version = "1")
-    public Map<String, Object> getConversionSummary(@RequestParam String advertiserId) {
+    @GetMapping(value = "/summary")
+    public Map<String, Object> getConversionSummary(@RequestParam("advertiserId") String advertiserId) {
         List<Conversion> conversions = conversionRepository.findAll().stream()
-                .filter(c -> advertiserId.equals(c.getAdvertiser_id()))
+                .filter(c -> advertiserId.equals(c.getAdvertiserId()))
                 .collect(Collectors.toList());
 
         int totalConversions = conversions.size();
@@ -91,10 +91,10 @@ public class ConversionController {
                 "multiTouchRate", Math.round(multiTouchRate * 10) / 10.0);
     }
 
-    @GetMapping(value = "/top-paths", version = "1")
-    public List<TopPathResponse> getTopConversionPaths(@RequestParam String advertiserId, @RequestParam(defaultValue = "5") int limit) {
+    @GetMapping(value = "/top-paths")
+    public List<TopPathResponse> getTopConversionPaths(@RequestParam("advertiserId") String advertiserId, @RequestParam(value = "limit", defaultValue = "5") int limit) {
         List<Conversion> conversions = conversionRepository.findAll().stream()
-                .filter(c -> advertiserId.equals(c.getAdvertiser_id()))
+                .filter(c -> advertiserId.equals(c.getAdvertiserId()))
                 .collect(Collectors.toList());
 
         if (conversions.isEmpty()) {
@@ -136,12 +136,12 @@ public class ConversionController {
         return result;
     }
 
-    @GetMapping(version = "1")
+    @GetMapping
     public Page<ConversionDetailDTO> getConversions(
-            @RequestParam String advertiserId,
-            @RequestParam(required = false) String type,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "6") int size) {
+            @RequestParam("advertiserId") String advertiserId,
+            @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "6") int size) {
         
         Pageable pageable = PageRequest.of(page, size, Sort.by("conversion_date").descending());
         Page<Conversion> conversionsPage;
@@ -149,12 +149,12 @@ public class ConversionController {
         if (type != null && !type.isEmpty()) {
             try {
                 Conversion.ConversionType conversionType = Conversion.ConversionType.valueOf(type.toUpperCase());
-                conversionsPage = conversionRepository.findByAdvertiser_idAndType(advertiserId, conversionType, pageable);
+                conversionsPage = conversionRepository.findByAdvertiserIdAndType(advertiserId, conversionType, pageable);
             } catch (IllegalArgumentException e) {
                 return Page.empty(pageable);
             }
         } else {
-            conversionsPage = conversionRepository.findByAdvertiser_id(advertiserId, pageable);
+            conversionsPage = conversionRepository.findByAdvertiserId(advertiserId, pageable);
         }
         
         List<Touchpoint> allTouchpoints = touchpointRepository.findAll();
@@ -197,33 +197,33 @@ public class ConversionController {
         return new PageImpl<>(content, pageable, conversionsPage.getTotalElements());
     }
 
-    @GetMapping(value = "/{id}", version = "1")
+    @GetMapping(value = "/{id}")
     public Conversion getConversionById(@PathVariable String id) {
         return conversionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Conversion not found with id " + id));
     }
 
-    @PostMapping(version = "1")
+    @PostMapping
     public ResponseEntity<Conversion> createConversion(@RequestBody Conversion conversion) throws URISyntaxException {
         Conversion savedConversion = conversionRepository.save(conversion);
         return ResponseEntity.created(new URI("/api/v1/conversions/" + savedConversion.getId())).body(savedConversion);
     }
 
-    @PutMapping(value = "/{id}", version = "1")
+    @PutMapping(value = "/{id}")
     public ResponseEntity<Conversion> updateConversion(@PathVariable String id, @RequestBody Conversion conversion) {
         Conversion currentConversion = conversionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Conversion not found with id " + id));
-        currentConversion.setAdvertiser_id(conversion.getAdvertiser_id());
+        currentConversion.setAdvertiserId(conversion.getAdvertiserId());
         currentConversion.setConversion_date(conversion.getConversion_date());
         currentConversion.setType(conversion.getType());
         currentConversion.setSubcategory(conversion.getSubcategory());
         currentConversion.setRevenue(conversion.getRevenue());
-        currentConversion = conversionRepository.save(conversion);
+        currentConversion = conversionRepository.save(currentConversion);
         
         return ResponseEntity.ok(currentConversion);
     }
 
-    @DeleteMapping(value = "/{id}", version = "1")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteConversion(@PathVariable String id) {
         conversionRepository.deleteById(id);
         return ResponseEntity.noContent().build();
