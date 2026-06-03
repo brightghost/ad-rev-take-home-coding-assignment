@@ -11,12 +11,15 @@
 
 ## HOWTO
 To launch the demo app:
+Backend:
 ````
-    # front
-        cd demo/frontend/src && npm start
-    # back
         docker compose up --build -d app
 ````
+Frontend:
+````
+        cd demo/frontend/src && npm start
+````
+
 Web interface will be accessible at http://localhost:3000/
 
 ## TODO Backend
