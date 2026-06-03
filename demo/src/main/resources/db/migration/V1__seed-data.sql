@@ -4,6 +4,24 @@
 -- (e.g. src/main/resources/db/migration/V2__seed_data.sql)
 -- ============================================================
 
+CREATE TABLE conversion (
+    id varchar(50) PRIMARY KEY,
+    advertiser_id varchar(100) NOT NULL,
+    conversion_date timestamp NOT NULL,
+    type varchar(20) NOT NULL,
+    subcategory varchar(100),
+    revenue numeric(12,2)
+);
+
+CREATE TABLE touchpoint (
+    id varchar(50) PRIMARY KEY,
+    conversion_id varchar(50) NOT NULL REFERENCES conversion(id),
+    channel varchar(30) NOT NULL,
+    channel_detail varchar(255),
+    impression_date timestamp NOT NULL,
+    sequence_index integer NOT NULL
+);
+
 -- ── Conversions ──────────────────────────────────────────────
 -- 50 conversions for advertiser 'adv-demo-001'
 -- Distribution: ~15 CHECKOUT, ~20 LEAD, ~15 PAGE_VISIT

@@ -1,5 +1,21 @@
 # Fullstack Take-Home Assessment: Conversion Journey Dashboard
 
+#HOWTO
+To launch the demo app:
+    cd demo
+    ./mvnw -DskipTests compile
+
+#TODO
+- [x] Java records for DTOs
+- [ ] @RequiredArgsConstructor for injection (no @Autowired)
+- [ ] @Slf4j for logging
+- [ ] @Builder on entities
+- [ ] @CreatedDate/@LastModifiedDate for audit fields
+- [x] Controller → Service → Repository separation
+- [x] Custom exception + @ControllerAdvice for error responses
+
+
+---------
 ## Overview
 
 Build a minimal **Conversion Journey Dashboard** — a fullstack app that visualizes how users interact with advertising campaigns across multiple channels before converting.
