@@ -4,10 +4,11 @@ import TopPaths from "./TopPathsWidget";
 
 class App extends Component {
   render() {
-    return (
-      <div className="App">
-        <TopPaths />
-      </div>
+    return (      
+        <div className="App">
+          <title>Conversion Journey</title>
+          <TopPaths />
+        </div>    
     );
   }
 }

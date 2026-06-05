@@ -11,7 +11,7 @@ public class DemoApplication {
 
 	@RequestMapping("/")
 	public String home() {
-		return "Hello, World!";
+		return "This is the API server; try port 3000 for the frontend or send a request to /api for the backend API.";
 	}
 	
 	public static void main(String[] args) {
