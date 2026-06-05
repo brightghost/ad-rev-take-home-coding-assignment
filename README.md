@@ -21,14 +21,25 @@ Frontend:
 ````
 Web interface will be accessible at http://localhost:3000/
 
-For dev you can use:
-
-    $ cd demo && ./mvnw package && ./mvnw spring-boot:run
+For backend dev you can use:
+    $ docker compose up postgres -d
+    $ cd demo && ./mvnw clean flyway:migrate && ./mvnw package && ./mvnw spring-boot:run
 
 We can hit the API like so:
-    curl -i 'http://localhost:9090/api/v1/conversions/summary?advertiserId=adv-demo-001'
+    $ curl -i 'http://localhost:9090/api/v1/conversions/summary?advertiserId=adv-demo-001'
+    HTTP/1.1 200 
+    Content-Type: application/json
+    Content-Length: 93
+    Date: Fri, 05 Jun 2026 07:11:07 GMT
 
+    {"avgTouchpoints":2.5,"multiTouchRate":86.0,"avgTimeToConvertDays":4.4,"totalConversions":50}
+    $ curl -i 'http://localhost:9090/api/v1/conversions/c001'
+        HTTP/1.1 200 
+        Content-Type: application/json
+        Content-Length: 149
+        Date: Fri, 05 Jun 2026 07:06:04 GMT
 
+        {"advertiserId":"adv-demo-001","conversion_date":"2026-05-20T19:30:00.000Z","id":"c001","revenue":2450.00,"subcategory":"purchase","type":"CHECKOUT"}
 
 ## TODO Backend
 - [x] Java records for DTOs
@@ -43,6 +54,7 @@ We can hit the API like so:
  
 - [ ]  sql schema is used as-is from the seed data; should build a flyway
   migration that replaces id strings with UUIDs as defined in the schema
+- [ ] layers should be defined for performant image [https://docs.spring.io/spring-boot/reference/packaging/container-images/efficient-images.html]
 
 ## TODO Frontend
 - [ ] demo is hardcoded for advertiser id 'adv-demo-001'; this should be set per

@@ -4,30 +4,13 @@
 -- (e.g. src/main/resources/db/migration/V2__seed_data.sql)
 -- ============================================================
 
-CREATE TABLE conversion (
-    id varchar(50) PRIMARY KEY,
-    advertiser_id varchar(100) NOT NULL,
-    conversion_date timestamp NOT NULL,
-    type varchar(20) NOT NULL,
-    subcategory varchar(100),
-    revenue numeric(12,2)
-);
-
-CREATE TABLE touchpoint (
-    id varchar(50) PRIMARY KEY,
-    conversion_id varchar(50) NOT NULL REFERENCES conversion(id),
-    channel varchar(30) NOT NULL,
-    channel_detail varchar(255),
-    impression_date timestamp NOT NULL,
-    sequence_index integer NOT NULL
-);
 
 -- ── Conversions ──────────────────────────────────────────────
 -- 50 conversions for advertiser 'adv-demo-001'
 -- Distribution: ~15 CHECKOUT, ~20 LEAD, ~15 PAGE_VISIT
 -- Date range: May 1–21, 2026
 
-INSERT INTO conversion (id, advertiser_id, conversion_date, type, subcategory, revenue) VALUES
+INSERT INTO conversions (id, advertiser_id, conversion_date, type, subcategory, revenue) VALUES
 -- Path: Google → Meta → Direct (12 conversions)
 ('c001', 'adv-demo-001', '2026-05-20 14:30:00', 'CHECKOUT', 'purchase', 2450.00),
 ('c002', 'adv-demo-001', '2026-05-19 09:15:00', 'LEAD',     'contactus', NULL),
@@ -98,7 +81,7 @@ INSERT INTO conversion (id, advertiser_id, conversion_date, type, subcategory, r
 -- ── Touchpoints ──────────────────────────────────────────────
 
 -- Path: Google → Meta → Direct (c001–c012)
-INSERT INTO touchpoint (id, conversion_id, channel, channel_detail, impression_date, sequence_index) VALUES
+INSERT INTO touchpoints (id, conversion_id, channel, channel_detail, impression_date, sequence_index) VALUES
 ('t001', 'c001', 'GOOGLE',  'Google Search',       '2026-05-14 10:00:00', 1),
 ('t002', 'c001', 'META',    'Meta Retarget',        '2026-05-17 18:00:00', 2),
 ('t003', 'c001', 'DIRECT',  'Direct',               '2026-05-20 14:00:00', 3),

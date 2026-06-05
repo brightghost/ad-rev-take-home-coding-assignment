@@ -1,17 +1,23 @@
 package com.swlkr.adrevdemo.demo.touchpoint;
 import java.sql.Timestamp;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 
 @Entity
-@Table(name = "touchpoint")
+@Table(name = "touchpoints")
 public class Touchpoint {
     @Id
     private String id;
     private String conversion_id; //foreign key to Conversion
+
+    @Enumerated(EnumType.STRING)   
+    @Column(name = "channel")
     private TouchPointChannel channel;
     private String channel_detail; // e.g. "Google Search", "Meta Retarget", etc.
     private Timestamp impression_date;

@@ -4,6 +4,8 @@ import java.sql.Timestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -12,9 +14,11 @@ import jakarta.persistence.Table;
 public class Conversion {
     @Id
     private String id;
-    @Column(name = "advertiser_id")
-    private String advertiserId;
+    private String advertiser_id;
     private Timestamp conversion_date;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
     private ConversionType type;
     private String subcategory;
     private BigDecimal revenue; //only for CHECKOUT type
@@ -34,11 +38,11 @@ public class Conversion {
     }
 
     public String getAdvertiserId() {
-        return advertiserId;
+        return advertiser_id;
     }
 
-    public void setAdvertiserId(String advertiserId) {
-        this.advertiserId = advertiserId;
+    public void setAdvertiserId(String advertiser_id) {
+        this.advertiser_id = advertiser_id;
     }
 
     public Timestamp getConversion_date() {
