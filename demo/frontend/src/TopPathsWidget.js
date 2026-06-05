@@ -88,9 +88,9 @@ class TopPaths extends Component {
                     <table>
                         <thead>
                         <tr>
-                            <th width="30%">Name</th>
-                            <th width="30%">Email</th>
-                            <th width="40%">Actions</th>
+                            <th width="30%">Path</th>
+                            <th width="30%">Conversions</th>
+                            <th width="40%">Percentage</th>
                         </tr>
                         </thead>
                         <tbody>
