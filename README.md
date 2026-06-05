@@ -11,6 +11,7 @@
 
 ## HOWTO
 To launch the demo app:
+
 Backend:
 ````
         docker compose up --build -d app
@@ -22,10 +23,16 @@ Frontend:
 Web interface will be accessible at http://localhost:3000/
 
 For backend dev you can use:
+````
     $ docker compose up postgres -d
-    $ cd demo && ./mvnw clean flyway:migrate && ./mvnw package && ./mvnw spring-boot:run
+    $ cd demo
+    $ ./mvnw clean flyway:migrate
+    $ ./mvnw package
+    $ ./mvnw spring-boot:run
+````
 
 We can hit the API like so:
+````
     $ curl -i 'http://localhost:9090/api/v1/conversions/summary?advertiserId=adv-demo-001'
     HTTP/1.1 200 
     Content-Type: application/json
@@ -40,6 +47,7 @@ We can hit the API like so:
         Date: Fri, 05 Jun 2026 07:06:04 GMT
 
         {"advertiserId":"adv-demo-001","conversion_date":"2026-05-20T19:30:00.000Z","id":"c001","revenue":2450.00,"subcategory":"purchase","type":"CHECKOUT"}
+````
 
 ## TODO Backend
 - [x] Java records for DTOs
